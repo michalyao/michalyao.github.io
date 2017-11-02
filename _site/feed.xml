@@ -5,5 +5,182 @@
     <link>https://michalyao.github.io</link>
     <atom:link href="https://michalyao.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
+      <item>
+        <title>使用 JUnit4编写单元测试</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;主要内容: 本文从 What, Why, When, How, Deep 几个方面来介绍单元测试相关的基础知识。
+适合阅读: 对单元测试不了解或者一知半解的程序员
+需要技能: 了解 Java 编程语言，能够使用 IDEA 等。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;what&quot;&gt;What&lt;/h3&gt;
+
+&lt;p&gt;单元测试(unit test)并不同于普通的端到端测试，这是一项需要程序员通过实际编码来完成，并且与程序的设计和调试紧密相关的任务。单元的大小，并没有严格规定，但是遵照着软件设计中”SRP”(Single Responsibility Principle)原则，在 Java 中通常以类作为一个基本的测试单元，以此编写单元测试来对功能或者说行为进行监视和检测。
+JUnit 是 Java 编程语言中比较流行的一款单元测试框架，能够满足平时开发中大部分的需求。&lt;/p&gt;
+
+&lt;h3 id=&quot;why&quot;&gt;Why&lt;/h3&gt;
+
+&lt;p&gt;编写单元测试的主要目的是为了检视代码的行为是否符合预期，并且这种检查通常是成本很低的，开发人员可以方便的在 IDE 或本地开发环境中及时的发现问题，从而提高开发效率。&lt;/p&gt;
+
+&lt;h3 id=&quot;when&quot;&gt;When&lt;/h3&gt;
+
+&lt;p&gt;编写合理的单元测试可以轻松应付以下的几个场景&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;检查新添加的代码功能是否符合预期&lt;/li&gt;
+  &lt;li&gt;检查新添加的代码是否兼容旧版本&lt;/li&gt;
+  &lt;li&gt;第三方库代码的运行是否符合预期&lt;/li&gt;
+  &lt;li&gt;了解当前代码的行为&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;how&quot;&gt;How&lt;/h3&gt;
+
+&lt;p&gt;在 IDEA 中使用单元测试是很方便的，可以参考官方的教程&lt;a href=&quot;https://www.jetbrains.com/help/idea/creating-tests.html&quot;&gt;创建单元测试&lt;/a&gt;
+接下来使用的示例代码模拟实现了一个功能，根据一个程序员的技能和等级，为一个程序员打分。详细的代码可以到 github 上查看&lt;a href=&quot;https://github.com/michalyao/junit4-code-example&quot;&gt; code-example&lt;/a&gt;， 推荐根据提交历史来进行查看。具体的环境如下：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;JDK：1.8+&lt;/li&gt;
+  &lt;li&gt;IDEA：2017.2&lt;/li&gt;
+  &lt;li&gt;JUnit: 4.12&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;注解&quot;&gt;注解&lt;/h4&gt;
+
+&lt;p&gt;Junit4 开始使用的注释提高了单元测试的编写效率，在引入 Junit4依赖后，在需要进行测试的方法上添加一个@Test 注释即可。其他常用的注释还有@Before、@After、@Rule 等。在后面遇到的时候在详述&lt;/p&gt;
+
+&lt;h4 id=&quot;命名&quot;&gt;命名&lt;/h4&gt;
+
+&lt;p&gt;良好的测试方法命名能起到见名知义的效果。理想情况下，命名中需要包含测试的方法，条件以及期望的返回结果。可以提炼成以下的格式
+·&lt;em&gt;callSomeMethodReturnSomeResultWhenSomeConditions&lt;/em&gt;
+或者其他的类似的变体。比如&lt;code class=&quot;highlighter-rouge&quot;&gt;given-then-when&lt;/code&gt;等等&lt;/p&gt;
+
+&lt;h4 id=&quot;方法体&quot;&gt;方法体&lt;/h4&gt;
+
+&lt;p&gt;前面的命名中提到的三个信息也正是组织单元测试的基本依据。即&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;准备条件 (arrange)&lt;/li&gt;
+  &lt;li&gt;执行目标方法 (act)&lt;/li&gt;
+  &lt;li&gt;检验结果 (assert)
+Assert 这个单词的直译是断言，意思是判断某项条件是否为真。在单元测试中我们通过断言来实现结果检验的语义, 以此来监视代码的行为。
+JUnit 中可以使用两种不同的断言风格— classic 和 matcher。通过代码可以直观的看出二者之间的差别。
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SkillGraphTest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+	
+     &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
+     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getResultReturnZeroWhenSkillGraphEmpty&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+         &lt;span class=&quot;c1&quot;&gt;// arrange&lt;/span&gt;
+         &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+         &lt;span class=&quot;c1&quot;&gt;// act and assert -- classic style&lt;/span&gt;
+         &lt;span class=&quot;n&quot;&gt;assertTrue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getResult&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+         &lt;span class=&quot;c1&quot;&gt;// act and assert -- matchers style&lt;/span&gt;
+         &lt;span class=&quot;n&quot;&gt;assertThat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getResult&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;equalTo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+ &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;上面为 SkillGraph 类编写的单元测试示例中，我们验证的行为是&lt;strong&gt;当程序员的技能图中没有添加任何技能时调用 &lt;code class=&quot;highlighter-rouge&quot;&gt;getResult&lt;/code&gt; 方法需要返回0（double 类型）&lt;/strong&gt; 
+由于代码很简单，所以将执行和验证的两个阶段合并到一起了。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;我们主要看一下不同风格的断言:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;classic 风格，即验证某项条件为真。在这个方法中即需要验证&lt;strong&gt;执行&lt;/strong&gt;方法的结果 &lt;code class=&quot;highlighter-rouge&quot;&gt;skills.getResult&lt;/code&gt;与我们&lt;strong&gt;期望&lt;/strong&gt;的结果是否相等。也就是&lt;code class=&quot;highlighter-rouge&quot;&gt;skills.getResult() == 0 &lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;matchers 风格，通过语义化的代码来验证结果是否匹配。整个代码不需要太多的逻辑思考，更贴近我们的阅读习惯 — &lt;code class=&quot;highlighter-rouge&quot;&gt;skills.getResult()  is equal to 0d&lt;/code&gt;
+在 Junit 中，Assert 类中提供了基础的断言 API。通过 &lt;code class=&quot;highlighter-rouge&quot;&gt;assertThat(actualResult, matchers)&lt;/code&gt; 方法可以利用 Hamcrest 开发的大量 Matcher 为我们的单元测试提供更好的语义化支持。
+在此，我不强烈推荐其中任何一种，但是需要注意的是一个项目中的断言风格应该尽量保持一直。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;测试异常&quot;&gt;测试异常&lt;/h4&gt;
+
+&lt;p&gt;在编写单元测试时，如果测试结果不符合预期，JUnit 会报告一次&lt;code class=&quot;highlighter-rouge&quot;&gt;failure&lt;/code&gt;；如果单元测试程序运行过程中如果出现了异常，则会报告一次&lt;code class=&quot;highlighter-rouge&quot;&gt;error&lt;/code&gt;。由于单元测试的隔离性，我们通常将关注点集中在需要测试的功能上，而不需要浪费时间在异常处理上，因此一些受检查异常直接在方法签名上抛出即可。
+有些时候我们可能会需要验证异常抛出的正确性，以此来保证客户端使用的正确性和可靠性，有三种形式可以来验证异常行为是否合理。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;在 @Test 注解中增加 expected 属性。如下代码如果去掉 expected 属性，执行单元测试则会由于运行时异常而报告一次 error
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expected&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IllegalArgumentException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getResultThrowIllegalArgumentExceptionWhenAddNullValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// arrange&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// act&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// assert&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;使用 try-catch 方法来验证。如下，虽然可以实现，但是不够优雅。
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;   &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getResultThrowIllegalArgumentExceptionWhenAddNullValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// arrange&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// act&lt;/span&gt;
+          &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;// assert&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;assertThat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;instanceOf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IllegalArgumentException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+              &lt;span class=&quot;n&quot;&gt;assertThat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMessage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;equalTo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Skill can not be null.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+          &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;使用 @Rule 注解，利用内置的 ExpectedException 来实现。JUnit 中的 rule 规则机制实际上就是类似一种 AOP 的实现，为单元测试提供面向切面编程的能力，详细的内容不再此展开了。&lt;strong&gt;异常的断言要放在前面，否则代码就无法执行到&lt;/strong&gt;
+    &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;      &lt;span class=&quot;nd&quot;&gt;@Rule&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ExpectedException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expectedException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ExpectedException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;none&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+	
+      &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getResultThrowIllegalArgumentExceptionWhenAddNullValue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Exception&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;expectedException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;expectMessage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Skill can not be null.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;expectedException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;expect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IllegalArgumentException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// arrange&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SkillGraph&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// act&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;skills&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;// assert&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;deep&quot;&gt;Deep&lt;/h3&gt;
+
+&lt;h4 id=&quot;优化重构测试代码&quot;&gt;优化重构测试代码&lt;/h4&gt;
+&lt;p&gt;在编写单元测试时，&lt;strong&gt;分支条件&lt;/strong&gt;和&lt;strong&gt;边界条件&lt;/strong&gt;是需要重点关注的。这也会导致一个类的单元测试往往需要编写很多单元测试。因此有必要通过优化重构来保持代码的整洁和良好的可维护性和扩展性。
+在单元测试中，我们在 arrange 阶段往往会执行一些对象初始化等一些初始化操作，这个过程通常是重复的。可以通过&lt;code class=&quot;highlighter-rouge&quot;&gt;@Before&lt;/code&gt; 注解一个初始化方法，这样在&lt;strong&gt;每个&lt;/strong&gt;单元测试之前都会执行这段代码了。类似的还有&lt;code class=&quot;highlighter-rouge&quot;&gt;@After&lt;/code&gt;注解，只不过不太常用。
+其实之前提到的&lt;code class=&quot;highlighter-rouge&quot;&gt;@Rule&lt;/code&gt;注解实现的就是类似&lt;code class=&quot;highlighter-rouge&quot;&gt;@Before&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;@After&lt;/code&gt;的功能，在执行一个单元测试方法的前后执行一些方法，只不过这些方法都是有具体的目标，通过规则这个语义实现。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注：&lt;/strong&gt; JUnit 中每个单元测试都拥有独立的上下文环境，执行每个测试方法时都会单独生成一个新的实例，因此&lt;strong&gt;无法&lt;/strong&gt;保证单元测试用例的执行顺序，导致我们在单元测试中不能依赖其他的测试结果，当然这种需求本身就是“anti pattern”的。&lt;/p&gt;
+
+&lt;h4 id=&quot;junit-运行&quot;&gt;JUnit 运行&lt;/h4&gt;
+
+&lt;p&gt;一个典型的单元测试用例的执行如下&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;创建单元测试类实例&lt;/li&gt;
+  &lt;li&gt;调用@Before 方法&lt;/li&gt;
+  &lt;li&gt;执行&lt;strong&gt;某一个&lt;/strong&gt;被&lt;code class=&quot;highlighter-rouge&quot;&gt;@Test&lt;/code&gt;注释的方法&lt;/li&gt;
+  &lt;li&gt;调用@After 方法&lt;/li&gt;
+  &lt;li&gt;创建新的单元测试类实例&lt;/li&gt;
+  &lt;li&gt;调用@Before 方法&lt;/li&gt;
+  &lt;li&gt;执行&lt;strong&gt;另外某一个&lt;/strong&gt; 被&lt;code class=&quot;highlighter-rouge&quot;&gt;@Test&lt;/code&gt;注释的方法&lt;/li&gt;
+  &lt;li&gt;调用@After 方法
+… …&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;边界条件&quot;&gt;边界条件&lt;/h4&gt;
+
+&lt;p&gt;编写单元测试最主要、最直接的关注点就是方法执行的正确性。其次需要关注数据的&lt;em&gt;边界条件&lt;/em&gt;，即在某些极端的或者不正确的条件下，程序能否正常的运行或者合理的运行，以此来保证系统的健壮性。常见的关注点有以下几个&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;不合实际的值（例：表示人类年龄的字段输入180或者负数）&lt;/li&gt;
+  &lt;li&gt;不符合格式的值 （例：邮件，手机等）&lt;/li&gt;
+  &lt;li&gt;算数溢出&lt;/li&gt;
+  &lt;li&gt;空值，Null，空集合等&lt;/li&gt;
+  &lt;li&gt;不合理的重复值&lt;/li&gt;
+  &lt;li&gt;没有合理排序的值&lt;/li&gt;
+  &lt;li&gt;事件发生的顺序异常（例: 在创建用户之前就进行信息编辑等）&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;小结&quot;&gt;小结&lt;/h3&gt;
+&lt;p&gt;编写单元测试算是一项内功修炼，也是一项烦琐的工作。曾国藩曾说过，“成大事者，必能耐烦”。如果单纯为了提高代码覆盖率，确实很烦；如果为了改进代码结构防患 Bug 于未然，就会发现单元测试是如此有用。&lt;/p&gt;
+</description>
+        <pubDate>Thu, 02 Nov 2017 00:00:00 +0800</pubDate>
+        <link>https://michalyao.github.io/2017-11-02/junit4/</link>
+        <guid isPermaLink="true">https://michalyao.github.io/2017-11-02/junit4/</guid>
+      </item>
+    
   </channel>
 </rss>
