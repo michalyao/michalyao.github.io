@@ -8,9 +8,11 @@
       <item>
         <title>使用 JUnit4编写单元测试</title>
         <description>&lt;blockquote&gt;
-  &lt;p&gt;主要内容: 本文从 What, Why, When, How, Deep 几个方面来介绍单元测试相关的基础知识。
-适合阅读: 对单元测试不了解或者一知半解的程序员
-需要技能: 了解 Java 编程语言，能够使用 IDEA 等。&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;主要内容: 本文从 What, Why, When, How, Deep 几个方面来介绍单元测试相关的基础知识。&lt;/li&gt;
+    &lt;li&gt;适合阅读: 对单元测试不了解或者一知半解的程序员&lt;/li&gt;
+    &lt;li&gt;需要技能: 了解 Java 编程语言，能够使用 IDEA 等。&lt;/li&gt;
+  &lt;/ul&gt;
 &lt;/blockquote&gt;
 
 &lt;h3 id=&quot;what&quot;&gt;What&lt;/h3&gt;
