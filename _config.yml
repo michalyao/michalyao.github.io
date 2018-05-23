@@ -44,11 +44,11 @@ kramdown:
 
 # Navigation
 nav:
-  - name:           "About"
+  - name:           "关于"
     url:            "/about"
-  - name:           "Archive"
+  - name:           "归档"
     url:            "/archive"
-  - name:           "Tags"
+  - name:           "分类"
     url:            "/tags"
   - name:           "Github"
     url:            "https://github.com/michalyao/michalyao.github.io"
