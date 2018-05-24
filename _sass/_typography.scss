@@ -81,6 +81,7 @@ p {
   color: $text-color;
   margin: 0 0 1rem;
   line-height: 1.7em;
+  white-space: normal;
 }
 
 /*--------------
@@ -167,7 +168,6 @@ dt {
   overflow: auto;
   clear: left;
   text-align: right;
-  white-space: nowrap;
   font-weight: bold;
   margin-bottom: $li-bottom-space;
 
@@ -278,10 +278,6 @@ pre {
   padding: .5rem;
   font-size: .8rem;
   line-height: 1.4;
-  white-space: pre;
-  white-space: pre-wrap;
-  word-break: break-all;
-  word-wrap: break-word;
   background-color: $code-background-color;
 }
 

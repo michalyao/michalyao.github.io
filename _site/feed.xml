@@ -6,6 +6,87 @@
     <atom:link href="https://michalyao.github.io/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
+        <title>EverMonkey 3.0 重构计划</title>
+        <description>&lt;p&gt;EverMonkey 是我在2017年基于 vscode 编辑器引擎开发的印象笔记客户端，支持 Markdown 语法以及代码高亮。做这样一个插件或者说产品的初衷是希望能够提升印象笔记的编辑体验以及阅读体验。借助 vscode 平台上的 Markdown 原生支持和其他插件以及可定制 Markdown 主题样式，这两点我个人觉得做的还不错。&lt;/p&gt;
+
+&lt;p&gt;没有产品可以尽善尽美，这一年多陆陆续续也收到了些来自用户的反馈。最近决定抽出些时间好好梳理一下，从代码和设计方面重构 EverMonkey。&lt;/p&gt;
+
+&lt;h2 id=&quot;设计&quot;&gt;设计&lt;/h2&gt;
+&lt;p&gt;EverMonkey 最初是针对像我一样喜欢折腾的程序员设计的，但是后来我发现用户中有一些非技术人员，这样在设计的过程中就需要充分考虑产品的易用性。因此在这次重构过程中我通过一个简单的维度将用户角色（Personas）分为两种，Coder 和 Non-Coder。以用户为中心重新进行设计和改进。&lt;/p&gt;
+
+&lt;h3 id=&quot;用户角色&quot;&gt;用户角色&lt;/h3&gt;
+
+&lt;p&gt;Coder（极客爱耍酷）&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;动手能力强，喜欢折腾&lt;/li&gt;
+  &lt;li&gt;至少熟悉一种代码编辑器（vscode/atom/sublime）&lt;/li&gt;
+  &lt;li&gt;有可能使用 Markdown 高级或扩展语法（时序图/数学公式）&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Non-Coder（简单要好用）&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;动手能力相对较弱&lt;/li&gt;
+  &lt;li&gt;不熟悉代码编辑器&lt;/li&gt;
+  &lt;li&gt;使用 Markdown 基本语法&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;这两种角色的属性不同，对编辑器和产品的理解和掌握程度差异也很大。因此需要在易用性和扩展性两个方面下功夫，一方面要保证软件好用，稳定；另一方面也需要支持一些高阶功能和定制化需求。&lt;/p&gt;
+
+&lt;h3 id=&quot;功能&quot;&gt;功能&lt;/h3&gt;
+&lt;p&gt;作为印象笔记的客户端，EverMonkey 需要支持的功能也非常清晰。以下列表我按照功能的优先级顺序进行排列。并在后面介绍现有系统的实现和优化方向。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;编辑&lt;/li&gt;
+  &lt;li&gt;配置&lt;/li&gt;
+  &lt;li&gt;导航&lt;/li&gt;
+  &lt;li&gt;搜索&lt;/li&gt;
+  &lt;li&gt;阅读&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;编辑&quot;&gt;编辑&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;https://monkey.yoryor.top/#/&quot;&gt;EverMonkey 网站&lt;/a&gt;上我写的标语是 “Evernote editing redefined”，这句话受 vscode 启发，直译是“重新定义印象笔记编辑体验”。因此编辑是在产品初期就非常关注的一块功能。不过目前为止我对编辑功能却不是很满意。 我以个人为例，总结了编辑印象笔记几个常见的使用场景。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;纯文本编辑&lt;/li&gt;
+  &lt;li&gt;纯文本编辑 + 复制粘贴（图片)&lt;/li&gt;
+  &lt;li&gt;纯文本编辑 + 附件整理&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;纯文本编辑功能目前来说支持的还不错，结合 vscode 的补全和 Markdown 插件可以实现比较高效率的编辑。接下来希望能够实现与印象笔记原生客户端一样操作截图和附件的体验（copy &amp;amp; paste, drag &amp;amp; drop）。有人曾经提议希望能够支持一些 Markdown 的高级语法，比如数学公式等。虽然有很多开源实现可以借鉴，不过之前我研究发现大部分的软件包都太臃肿了，所以综合考虑后面有可能做成可扩展的形式，对于有需要的同学可以通过增量安装的方式来实现。&lt;/p&gt;
+
+&lt;h4 id=&quot;配置&quot;&gt;配置&lt;/h4&gt;
+&lt;p&gt;尽管配置是一个一次性操作，但是其复杂程度会让很多非技术人员望而却步。最令人沮丧的情况就是折腾半天，徒劳无功。作为一个开发者，我当然不希望用户受到如此困扰。为了在这种复杂场景尽量做到无痛和平滑，优化的方向目前想到有以下三点。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;减少系统性配置，通过元数据的方式直接暴露在笔记中，比如只读属性，甚至字体，主题切换等样式配置。&lt;/li&gt;
+  &lt;li&gt;优化文档，必要的设置说明需要步骤详尽，直观准确。&lt;/li&gt;
+  &lt;li&gt;支持国际化&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;其他&quot;&gt;其他&lt;/h4&gt;
+&lt;p&gt;导航，搜索，阅读这三个功能做的还可以。其中阅读笔记有两种方式，直接使用 vscode 的Markdown 预览功能，或者发布到印象笔记结合 web 或者原生客户端来查阅。Markdown 主题之前的设计是从一个技术人员角度出发的，通过直接修改 CSS 文件来实现。接下来希望将主题做成可扩展的形式，方便 coder 进行定制化，也可以通过分享和内置主题等方式增加non-coder的选择。&lt;/p&gt;
+
+&lt;h2 id=&quot;代码&quot;&gt;代码&lt;/h2&gt;
+&lt;p&gt;EverMonkey 的第一版是我在一个周末写出来的，当时也没有想到会有多少人用，所以代码写的很粗糙。尽管后来重构了一版，目前的代码仍然有些臃肿不好读。
+代码重构是一个持续的过程，没有终点。 通过重构将代码变得简洁有力，便于维护；也需要将系统进行抽象和解耦，便于功能的扩展。
+这里说再多也不如动手写代码来的实在。考虑到TypeScript 不是自己的主力编程语言，所以需要一些时间来进行学习。我希望这是一个令人享受的过程。&lt;/p&gt;
+
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
+&lt;p&gt;在3.0版本实现代码和设计上的重构，确实需要点时间。代码层面上需要精益求精，设计上也需要更多的考虑易用性和扩展性两方面来满足不同用户的需求。&lt;/p&gt;
+
+&lt;p&gt;最近在学习中受到了一些启发，对软件和产品的理解也发生了一些变化。作为一个开发者，技术并不是唯一重要的，还需要在很多方向上努力，让自己变得专业，可靠。某种程度上，我们是手艺人，靠手艺吃饭，耐心，细心和匠心都是必不可少的，心境上的变化也是启动这次重构的主要原因，希望自己能够坚持下来。&lt;/p&gt;
+
+&lt;p&gt;最后感谢大家对 EverMonkey 的支持！有任何意见和建议都可以留言或者到 https://github.com/michalyao/evermonkey/issues 上面提 issue 给我。&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 24 May 2018 00:00:00 +0800</pubDate>
+        <link>https://michalyao.github.io/2018-05-24/evermonkey-30/</link>
+        <guid isPermaLink="true">https://michalyao.github.io/2018-05-24/evermonkey-30/</guid>
+      </item>
+    
+      <item>
         <title>使用 JUnit4 编写单元测试</title>
         <description>&lt;blockquote&gt;
   &lt;ul&gt;
